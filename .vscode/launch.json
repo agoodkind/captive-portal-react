@@ -1,0 +1,115 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Dev",
+      "cwd": "${workspaceFolder}",
+      "request": "launch",
+      "type": "node-terminal",
+      "command": "NO_COLOR=true pnpm run dev",
+      "smartStep": true,
+      "internalConsoleOptions": "openOnSessionStart",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/node_modules/**"
+      ],
+      "serverReadyAction": {
+        "action": "startDebugging",
+        "name": "Open Dev in Chrome",
+        "killOnServerStop": false,
+        "pattern": "http:\\/\\/localhost:([0-9]+)\\/"
+      },
+      "presentation": {
+        "group": "Vike"
+      }
+    },
+    {
+      "name": "Open Dev in Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/dist",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/node_modules/**"
+      ],
+      "smartStep": true,
+      "sourceMaps": true,
+      "userDataDir": "${userHome}/chrome-debug-profile",
+      "internalConsoleOptions": "openOnSessionStart",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "preview"],
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal",
+      "presentation": {
+        "group": "Vike"
+      }
+    },
+    {
+      "name": "API Dev Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "command": "pnpm run dev:api",
+      "internalConsoleOptions": "openOnSessionStart",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/node_modules/**"
+      ],
+      "presentation": {
+        "group": "API",
+        "order": 1
+      }
+    },
+    {
+      "name": "Debug API Server",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["exec", "tsx", "watch", "--inspect", "server.ts"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "openOnSessionStart",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/node_modules/**"
+      ],
+      "sourceMaps": true,
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "presentation": {
+        "group": "API",
+        "order": 2
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack Dev",
+      "configurations": ["API Dev Server", "Dev"],
+      "stopAll": true,
+      "presentation": {
+        "group": "Full Stack",
+        "order": 1
+      }
+    },
+    {
+      "name": "Full Stack Debug",
+      "configurations": ["Debug API Server", "Dev"],
+      "stopAll": true,
+      "presentation": {
+        "group": "Full Stack",
+        "order": 2
+      }
+    }
+  ]
+}
