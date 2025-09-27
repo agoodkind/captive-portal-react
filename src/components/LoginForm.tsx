@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card } from './Card';
-import { Input, Button } from './FormElements';
+import { Card } from '@components/Card';
+import { Input, Button } from '@components/FormElements';
 
 interface LoginFormProps {
   onSubmit: (username: string, password: string) => Promise<void>;

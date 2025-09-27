@@ -1,5 +1,5 @@
-import { Card } from './Card';
-import { Button } from './FormElements';
+import { Card } from '@components/Card';
+import { Button } from '@components/FormElements';
 
 interface AnonymousLoginProps {
   onContinue: () => Promise<void>;

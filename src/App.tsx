@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { useCaptivePortal } from './hooks/useCaptivePortal';
-import { ErrorAlert } from './components/ErrorAlert';
-import { LoginForm } from './components/LoginForm';
-import { AnonymousLogin, LoggedInCard } from './components/AuthCards';
+import { useCaptivePortal } from '@hooks/useCaptivePortal';
+import { ErrorAlert } from '@components/ErrorAlert';
+import { LoginForm } from '@components/LoginForm';
+import { AnonymousLogin, LoggedInCard } from '@components/AuthCards';
 
 export function App() {
   const {

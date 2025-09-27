@@ -5,7 +5,7 @@ import type {
   AuthCredentials,
   ClientState,
   AuthType,
-} from '../types/auth';
+} from '@app-types/auth';
 
 interface UseCaptivePortalReturn {
   // State
