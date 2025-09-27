@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface ErrorAlertProps {
   message: string;
   onClose: () => void;
