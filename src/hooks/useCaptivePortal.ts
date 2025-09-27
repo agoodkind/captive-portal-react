@@ -1,11 +1,11 @@
-import { useState, useCallback } from 'react';
 import type {
-  AuthStatus,
-  AuthResponse,
   AuthCredentials,
-  ClientState,
+  AuthResponse,
+  AuthStatus,
   AuthType,
+  ClientState,
 } from '@app-types/auth';
+import { useCallback, useState } from 'react';
 
 interface UseCaptivePortalReturn {
   // State
@@ -38,7 +38,7 @@ export function useCaptivePortal(
       if (onAuthSuccess) {
         onAuthSuccess(redirUrl);
       } else if (redirUrl) {
-        window.location.href = `http://${redirUrl}?refresh`;
+        window.location.href = `http://${redirUrl}`;
       } else {
         window.location.reload();
       }
