@@ -8,6 +8,8 @@
     "dev:api": "tsx watch server.ts",
     "dev:all": "pnpm run dev:api & pnpm run dev",
     "build": "tsc -b && vite build",
+    "build:zip": "cd dist && zip -r ../captive-portal-react.zip .",
+    "build:all": "pnpm run build && pnpm run build:zip",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",

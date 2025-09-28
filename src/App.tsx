@@ -1,8 +1,15 @@
-import { useEffect } from 'react';
-import { useCaptivePortal } from '@hooks/useCaptivePortal';
+import { AuthType } from '@app-types/auth';
+import { AnonymousLogin, LoadingLoginState, LoggedInCard } from '@components/AuthCards';
 import { ErrorAlert } from '@components/ErrorAlert';
 import { LoginForm } from '@components/LoginForm';
-import { AnonymousLogin, LoggedInCard } from '@components/AuthCards';
+import { useCaptivePortal } from '@hooks/useCaptivePortal';
+import { useEffect } from 'react';
+
+export const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
+    <div className="w-full max-w-md">{children}</div>
+  </div>
+);
 
 export function App() {
   const {
@@ -19,8 +26,8 @@ export function App() {
 
   // Derived state for UI decisions
   const isAuthorized = clientState === 'AUTHORIZED';
-  const isAnonymousAuth = authType === 'none' && !isAuthorized;
-  const isPasswordAuth = authType !== 'none' && !isAuthorized && authType !== '';
+  const isAnonymousAuth = authType === AuthType.NONE;
+  const isPasswordAuth = authType === AuthType.NORMAL;
 
   // Check authentication status on mount
   useEffect(() => {
@@ -40,9 +47,9 @@ export function App() {
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-gray-600">Loading...</div>
-      </div>
+      <Wrapper>
+        <LoadingLoginState />
+      </Wrapper>
     );
   }
 

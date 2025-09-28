@@ -6,6 +6,15 @@ interface AnonymousLoginProps {
   isSubmitting: boolean;
 }
 
+export function LoadingLoginState() {
+  return (
+    <Card className="text-center">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-6">Welcome</h2>
+      <p className="text-gray-600 mb-6">Loading...</p>
+    </Card>
+  );
+}
+
 export function AnonymousLogin({ onContinue, isSubmitting }: AnonymousLoginProps) {
   return (
     <Card className="text-center">

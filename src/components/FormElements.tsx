@@ -43,7 +43,7 @@ export function Button({
       {...props}
       disabled={disabled || loading}
       className={`w-full text-white py-3 rounded-lg transition-colors font-medium 
-        disabled:opacity-50 disabled:cursor-not-allowed
+        disabled:opacity-50 disabled:cursor-default cursor-pointer disabled:bg-auto
         ${variantClasses[variant]} ${className}`}
     >
       {loading && loadingText ? loadingText : children}

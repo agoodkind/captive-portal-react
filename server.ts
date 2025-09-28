@@ -1,6 +1,6 @@
+import cors from 'cors';
 import 'dotenv/config';
 import express from 'express';
-import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -32,11 +32,13 @@ app.use(cors());
 app.use(express.json());
 
 // Captive Portal Routes
-app.post('/api/captiveportal/access/status/', (req, res) => {
+app.post('/api/captiveportal/access/status/', async (req, res) => {
   console.log('Status check:', { body: req.body, currentSessionId, authType: AUTH_TYPE });
 
   // Check if user is already authenticated
   const isAuthorized = currentSessionId && sessions.has(currentSessionId);
+
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   res.json({
     clientState: isAuthorized ? 'AUTHORIZED' : 'UNAUTHORIZED',
@@ -90,7 +92,7 @@ app.post('/api/captiveportal/access/logon/', async (req, res) => {
   }
 });
 
-app.post('/api/captiveportal/access/logoff/', (req, res) => {
+app.post('/api/captiveportal/access/logoff/', async (req, res) => {
   console.log('Logout request:', { currentSessionId });
 
   if (currentSessionId && sessions.has(currentSessionId)) {
@@ -98,6 +100,8 @@ app.post('/api/captiveportal/access/logoff/', (req, res) => {
     console.log('Session deleted:', currentSessionId);
   }
   currentSessionId = null;
+
+  await new Promise((resolve) => setTimeout(resolve, 3000));
 
   res.json({
     clientState: 'UNAUTHORIZED',
