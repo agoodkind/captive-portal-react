@@ -1,4 +1,4 @@
-import { AuthType } from '@app-types/auth';
+import { AuthType, ClientState } from '@app-types/auth';
 import { AnonymousLogin, LoadingLoginState, LoggedInCard } from '@components/AuthCards';
 import { ErrorAlert } from '@components/ErrorAlert';
 import { LoginForm } from '@components/LoginForm';
@@ -25,7 +25,7 @@ export function App() {
   } = useCaptivePortal();
 
   // Derived state for UI decisions
-  const isAuthorized = clientState === 'AUTHORIZED';
+  const isAuthorized = clientState === ClientState.AUTHORIZED;
   const isAnonymousAuth = authType === AuthType.NONE;
   const isPasswordAuth = authType === AuthType.NORMAL;
 
@@ -44,34 +44,18 @@ export function App() {
     await login({ user: '', password: '' });
   };
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <Wrapper>
-        <LoadingLoginState />
-      </Wrapper>
-    );
-  }
+  const content = isLoading ? (
+    <LoadingLoginState />
+  ) : error ? (
+    <ErrorAlert message={error} onClose={clearError} />
+  ) : isAuthorized ? (
+    <LoggedInCard onLogout={logout} isSubmitting={isSubmitting} />
+  ) : isPasswordAuth ? (
+    <LoginForm onSubmit={handlePasswordLogin} isSubmitting={isSubmitting} />
+  ) : isAnonymousAuth ? (
+    <AnonymousLogin onContinue={handleAnonymousLogin} isSubmitting={isSubmitting} />
+  ) : null;
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
-      <div className="w-full max-w-md">
-        {/* Error message */}
-        {error ? <ErrorAlert message={error} onClose={clearError} /> : null}
-
-        {/* Password authentication */}
-        {isPasswordAuth ? (
-          <LoginForm onSubmit={handlePasswordLogin} isSubmitting={isSubmitting} />
-        ) : null}
-
-        {/* Anonymous authentication */}
-        {isAnonymousAuth ? (
-          <AnonymousLogin onContinue={handleAnonymousLogin} isSubmitting={isSubmitting} />
-        ) : null}
-
-        {/* Logged in state */}
-        {isAuthorized ? <LoggedInCard onLogout={logout} isSubmitting={isSubmitting} /> : null}
-      </div>
-    </div>
-  );
+  // Render the appropriate UI based on state
+  return <Wrapper>{content}</Wrapper>;
 }

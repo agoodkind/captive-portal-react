@@ -1,13 +1,14 @@
 import {
+  AuthType,
   ClientState,
   Errors,
   type AuthCredentials,
-  type AuthResponse,
-  type AuthStatus,
-  type AuthType,
   type ErrorMessage,
+  type LoginResponse,
+  type StatusResponse,
 } from '@app-types/auth';
-import { useCallback, useState } from 'react';
+import { deepCamelCaseKeys } from 'deeply-convert-keys';
+import { useCallback, useEffect, useState } from 'react';
 
 interface UseCaptivePortalReturn {
   // State
@@ -24,125 +25,123 @@ interface UseCaptivePortalReturn {
   clearError: () => void;
 }
 
+const COMMON_HTTP_PARAMS = {
+  headers: {
+    'Content-Type': 'www-form-urlencoded; charset=UTF-8',
+  },
+  method: 'POST',
+};
+
 const API_BASE = '/api/captiveportal/access';
 
-export function useCaptivePortal(
-  onAuthSuccess?: (redirUrl: string | null) => void,
-): UseCaptivePortalReturn {
+const doFetch = async <T>(endpoint: 'status' | 'logon' | 'logoff', data?: unknown) => {
+  const response = await fetch(`${API_BASE}/${endpoint}/`, {
+    ...COMMON_HTTP_PARAMS,
+    body: JSON.stringify(data),
+  });
+
+  console.debug(`Fetch ${endpoint} response:`, response);
+
+  if (!response.ok) {
+    throw new Error(Errors.NETWORK);
+  }
+
+  const responseJson = await response.json();
+
+  console.debug(`Fetch ${endpoint} response json:`, responseJson);
+
+  return deepCamelCaseKeys(responseJson) as T;
+};
+
+const handleRedirect = (redirUrl: string) => {
+  window.location.href = `http://${redirUrl}`;
+};
+
+export function useCaptivePortal(): UseCaptivePortalReturn {
   const [clientState, setClientState] = useState<ClientState>();
   const [authType, setAuthType] = useState<AuthType>();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<ErrorMessage>();
+  const [redirUrl, setRedirUrl] = useState<string>();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const redir = params.get('redir');
+    if (redir) {
+      setRedirUrl(redir);
+    }
+  }, []);
 
   const clearError = useCallback(() => {
     setError(undefined);
   }, []);
 
   const clearClientState = useCallback(() => {
-    setClientState('');
+    setClientState(ClientState.EMPTY);
   }, []);
 
-  const handleRedirect = useCallback(
-    (redirUrl: string | null) => {
-      if (onAuthSuccess) {
-        onAuthSuccess(redirUrl);
-      } else if (redirUrl) {
-        window.location.href = `http://${redirUrl}`;
-      } else {
-        return;
-      }
-    },
-    [onAuthSuccess],
-  );
-
-  const checkStatus = useCallback(async () => {
-    try {
-      const response = await fetch(`${API_BASE}/status/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: '', password: '' }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Network error');
-      }
-
-      const data: AuthStatus = await response.json();
-      setClientState(data.clientState || '');
-      setAuthType(data.authType || '');
-      setIsLoading(false);
-    } catch (err) {
-      console.error(err);
-      setError(Errors.NETWORK);
-      setIsLoading(false);
-    }
-  }, []);
-
-  const login = useCallback(
-    async (credentials: AuthCredentials) => {
-      clearError();
-      setIsSubmitting(true);
-
+  const performHookSideEffects = useCallback(
+    async (fn: () => Promise<void>) => {
       try {
-        const response = await fetch(`${API_BASE}/logon/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-          body: new URLSearchParams({
-            user: credentials.user,
-            password: credentials.password,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Response not ok');
-        }
-
-        const data: AuthResponse = await response.json();
-
-        if (data.clientState === ClientState.AUTHORIZED) {
-          setClientState(ClientState.AUTHORIZED);
-          const params = new URLSearchParams(window.location.search);
-          const redirUrl = params.get('redirurl');
-          handleRedirect(redirUrl);
-        } else {
-          const errorMsg = credentials.user ? Errors.AUTH_FAILED : Errors.LOGIN_FAILED;
-          setError(errorMsg);
-        }
+        clearError();
+        setIsLoading(true);
+        await fn();
       } catch (err) {
+        if (err instanceof Error) {
+          if (err.message === Errors.NETWORK) {
+            setError(Errors.NETWORK);
+          } else if (err.message === Errors.AUTH_FAILED) {
+            setError(Errors.AUTH_FAILED);
+          } else {
+            setError(Errors.LOGIN_FAILED);
+          }
+        } else {
+          setError(Errors.UNKNOWN);
+        }
         console.error(err);
-        setError(Errors.NETWORK);
       } finally {
+        setIsLoading(false);
         setIsSubmitting(false);
       }
     },
-    [clearError, handleRedirect],
+    [clearError],
   );
 
-  const logout = useCallback(async () => {
-    clearError();
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch(`${API_BASE}/logoff/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: '', password: '' }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Network error');
+  const checkStatus = useCallback(async () => {
+    performHookSideEffects(async () => {
+      const data: StatusResponse = await doFetch('status');
+      setClientState(data.clientState);
+      if ('authType' in data) {
+        setAuthType(data.authType);
       }
+    });
+  }, [performHookSideEffects]);
 
-      await response.json();
-    } catch (err) {
-      console.error(err);
-      setError(Errors.NETWORK);
-    } finally {
-      setIsSubmitting(false);
-      clearClientState();
-    }
-  }, [clearClientState, clearError]);
+  const login = useCallback(
+    async (credentials: AuthCredentials) =>
+      await performHookSideEffects(async () => {
+        setIsSubmitting(true);
+        const response: LoginResponse = await doFetch('logon', credentials);
+
+        console.debug('Login response:', response);
+        if (redirUrl) {
+          handleRedirect(redirUrl);
+        }
+        checkStatus();
+      }),
+    [performHookSideEffects],
+  );
+
+  const logout = useCallback(
+    async () =>
+      await performHookSideEffects(async () => {
+        setIsSubmitting(true);
+        await doFetch('logoff');
+        clearClientState();
+      }),
+    [clearClientState, performHookSideEffects],
+  );
 
   return {
     // State

@@ -17,6 +17,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      deeply-convert-keys:
+        specifier: ^1.0.0
+        version: 1.0.0
       react:
         specifier: ^19.1.1
         version: 19.1.1
@@ -45,6 +48,12 @@ importers:
       '@types/react-dom':
         specifier: ^19.1.9
         version: 19.1.9(@types/react@19.1.14)
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.44.1
+        version: 8.44.1(@typescript-eslint/parser@8.44.1(eslint@9.36.0(jiti@2.6.0))(typescript@5.8.3))(eslint@9.36.0(jiti@2.6.0))(typescript@5.8.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.44.1
+        version: 8.44.1(eslint@9.36.0(jiti@2.6.0))(typescript@5.8.3)
       '@vitejs/plugin-react':
         specifier: ^5.0.3
         version: 5.0.3(rolldown-vite@7.1.12(@types/node@24.5.2)(esbuild@0.25.10)(jiti@2.6.0)(tsx@4.20.6))
@@ -941,6 +950,10 @@ packages:
 
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
+
+  deeply-convert-keys@1.0.0:
+    resolution: {integrity: sha512-QY2eNqOhCAlFvghYcj4D7TQ3XaM7BiKgjoKAkq7jhzwC7cI/QKX5bJaUTFAhSlXtMD+OgTIkKvXENFHW2q/3fQ==}
+    engines: {node: '>=14.0.0'}
 
   define-data-property@1.1.4:
     resolution: {integrity: sha512-rBMvIzlpA8v6E+SJZoo++HAYqsLrkg7MSfIinMPFhmkorw7X+dOXVJQs+QT69zGkzMyfDnIMN2Wid1+NbL3T+A==}
@@ -2932,6 +2945,8 @@ snapshots:
       ms: 2.1.3
 
   deep-is@0.1.4: {}
+
+  deeply-convert-keys@1.0.0: {}
 
   define-data-property@1.1.4:
     dependencies:

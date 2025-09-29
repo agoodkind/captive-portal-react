@@ -8,7 +8,7 @@
     "dev:api": "tsx watch server.ts",
     "dev:all": "pnpm run dev:api & pnpm run dev",
     "build": "tsc -b && vite build",
-    "build:zip": "cd dist && zip -r ../captive-portal-react.zip .",
+    "build:zip": "mkdir -p out && cd dist && zip -r ../out/captive-portal-react.zip .",
     "build:all": "pnpm run build && pnpm run build:zip",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -19,6 +19,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.12",
     "clsx": "^2.1.1",
+    "deeply-convert-keys": "^1.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tailwindcss": "^4.1.12"
@@ -30,6 +31,8 @@
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
     "@vitejs/plugin-react": "^5.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
