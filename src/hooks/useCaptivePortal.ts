@@ -4,7 +4,6 @@ import {
   Errors,
   type AuthCredentials,
   type ErrorMessage,
-  type LoginResponse,
   type StatusResponse,
 } from '@app-types/auth';
 import { deepCamelCaseKeys } from 'deeply-convert-keys';
@@ -25,36 +24,44 @@ interface UseCaptivePortalReturn {
   clearError: () => void;
 }
 
-const COMMON_HTTP_PARAMS = {
-  headers: {
-    'Content-Type': 'www-form-urlencoded; charset=UTF-8',
-  },
-  method: 'POST',
-};
-
 const API_BASE = '/api/captiveportal/access';
 
-const doFetch = async <T>(endpoint: 'status' | 'logon' | 'logoff', data?: unknown) => {
+/**
+ *
+ * @param endpoint 'status' | 'logon' | 'logoff'
+ * @param data data to be converted into www-form-urlencoded format
+ * @returns
+ */
+const doFetch = async <T>(
+  endpoint: 'status' | 'logon' | 'logoff',
+  data: {
+    user?: string;
+    password?: string;
+  } = {},
+) => {
   const response = await fetch(`${API_BASE}/${endpoint}/`, {
-    ...COMMON_HTTP_PARAMS,
-    body: JSON.stringify(data),
+    method: 'POST',
+    body: new URLSearchParams(data),
   });
 
-  console.debug(`Fetch ${endpoint} response:`, response);
-
   if (!response.ok) {
+    console.debug(`FAILED: Fetch ${endpoint} response:`, response);
     throw new Error(Errors.NETWORK);
   }
 
   const responseJson = await response.json();
 
-  console.debug(`Fetch ${endpoint} response json:`, responseJson);
+  console.debug(`Fetch ${endpoint}`, {
+    ok: response.ok,
+    response,
+    responseJson,
+  });
 
   return deepCamelCaseKeys(responseJson) as T;
 };
 
 const handleRedirect = (redirUrl: string) => {
-  window.location.href = `http://${redirUrl}`;
+  window.location.assign(redirUrl);
 };
 
 export function useCaptivePortal(): UseCaptivePortalReturn {
@@ -111,7 +118,9 @@ export function useCaptivePortal(): UseCaptivePortalReturn {
   const checkStatus = useCallback(async () => {
     performHookSideEffects(async () => {
       const data: StatusResponse = await doFetch('status');
+
       setClientState(data.clientState);
+
       if ('authType' in data) {
         setAuthType(data.authType);
       }
@@ -122,15 +131,15 @@ export function useCaptivePortal(): UseCaptivePortalReturn {
     async (credentials: AuthCredentials) =>
       await performHookSideEffects(async () => {
         setIsSubmitting(true);
-        const response: LoginResponse = await doFetch('logon', credentials);
+        await doFetch('logon', credentials);
 
-        console.debug('Login response:', response);
         if (redirUrl) {
           handleRedirect(redirUrl);
         }
+
         checkStatus();
       }),
-    [performHookSideEffects],
+    [checkStatus, performHookSideEffects, redirUrl],
   );
 
   const logout = useCallback(
