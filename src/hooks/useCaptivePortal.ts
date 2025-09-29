@@ -65,7 +65,7 @@ const handleRedirect = (redirUrl: string) => {
 };
 
 export function useCaptivePortal(): UseCaptivePortalReturn {
-  const [clientState, setClientState] = useState<ClientState>();
+  const [clientState, setClientState] = useState<ClientState>(ClientState.EMPTY);
   const [authType, setAuthType] = useState<AuthType>();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,10 +82,6 @@ export function useCaptivePortal(): UseCaptivePortalReturn {
 
   const clearError = useCallback(() => {
     setError(undefined);
-  }, []);
-
-  const clearClientState = useCallback(() => {
-    setClientState(ClientState.EMPTY);
   }, []);
 
   const performHookSideEffects = useCallback(
@@ -119,11 +115,10 @@ export function useCaptivePortal(): UseCaptivePortalReturn {
     performHookSideEffects(async () => {
       const data: StatusResponse = await doFetch('status');
 
-      setClientState(data.clientState);
-
       if ('authType' in data) {
         setAuthType(data.authType);
       }
+      setClientState(data.clientState);
     });
   }, [performHookSideEffects]);
 
@@ -147,9 +142,9 @@ export function useCaptivePortal(): UseCaptivePortalReturn {
       await performHookSideEffects(async () => {
         setIsSubmitting(true);
         await doFetch('logoff');
-        clearClientState();
+        checkStatus();
       }),
-    [clearClientState, performHookSideEffects],
+    [checkStatus, performHookSideEffects],
   );
 
   return {
