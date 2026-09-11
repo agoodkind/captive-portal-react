@@ -28,11 +28,11 @@
     "@eslint/js": "^9.39.5",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.5.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
-    "@typescript-eslint/eslint-plugin": "^8.69.0",
-    "@typescript-eslint/parser": "^8.69.0",
+    "@typescript-eslint/eslint-plugin": "^8.70.0",
+    "@typescript-eslint/parser": "^8.70.0",
     "@vitejs/plugin-react": "^5.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -47,7 +47,7 @@
     "prettier": "^3.9.6",
     "tsx": "^4.23.13",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.69.0",
+    "typescript-eslint": "^8.70.0",
     "vite": "npm:rolldown-vite@7.1.12"
   },
   "pnpm": {
